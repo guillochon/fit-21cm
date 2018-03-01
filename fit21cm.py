@@ -24,14 +24,25 @@ def foreground(nus, a):
 
 def foreground2(nus, b):
     """Foreground."""
-    return b[0] * (nus / nu_c) ** (-2.5 + b[1] + b[2] * np.log(
+    fg = b[0] * (nus / nu_c) ** (-2.5 + b[1] + b[2] * np.log(
         nus / nu_c)) * np.exp(-b[3] * (nus / nu_c) ** -2) + b[4] * (
             nus / nu_c) ** -2
+    cut = 50000.0
+    mincut = 0.1
+    fg[fg > cut] = cut * (1.0 + np.log(fg[fg > cut] / cut))
+    fg[fg < -cut] = -cut * (1.0 + np.log(-fg[fg < -cut] / cut))
+    minind = np.logical_and(fg < mincut, fg > 0)
+    fg[minind] = mincut / (
+        1.0 - np.log(fg[minind] / mincut))
+    minind = np.logical_and(fg > -mincut, fg < 0)
+    fg[minind] = -mincut / (
+        1.0 - np.log(-fg[minind] / mincut))
+    return fg
 
 
 def log_like(x):
     """Log likelihood."""
-    fg = foreground(xdata, x)
+    fg = foreground2(xdata, x)
 
     diff = ydata - fg
     return -0.5 * (np.sum(np.inner(diff, diff) / x[5] ** 2) + len(
@@ -54,12 +65,17 @@ free_vars = OrderedDict((
     # ('a2', (-arange, arange)),
     # ('a3', (-arange, arange)),
     # ('a4', (-arange, arange)),
-    ('a0', (0, 5000)),
-    ('a1', (100, 1500)),
-    ('a2', (-2000, 0)),
-    ('a3', (0, 1500)),
-    ('a4', (-1000, 500)),
-    ('sigma', (0, 10000))
+    # ('a0', (0, 5000)),
+    # ('a1', (0, 1200)),
+    # ('a2', (-2000, 0)),
+    # ('a3', (0, 1500)),
+    # ('a4', (-1000, 500)),
+    ('b0', (0, 4000)),
+    ('b1', (-3, 3)),
+    ('b2', (-3, 3)),
+    ('b3', (-3, 3)),
+    ('b4', (-1000, 1000)),
+    ('sigma', (0, 100))
 ))
 
 ndim = len(list(free_vars.keys()))
@@ -87,19 +103,21 @@ min_nu, max_nu = min(xdata), max(xdata)
 nu_c = (max_nu + min_nu) / 2.0
 
 dsampler = NestedSampler(
-    log_like, ptform, ndim, sample='rwalk')  # , print_progress=False)
-dsampler.run_nested(maxiter=200000)
+    log_like, ptform, ndim, sample='rwalk', bound='single')  # , print_progress=False)
+dsampler.run_nested(maxiter=14000, dlogz=0.01)
 
 res = dsampler.results
 
 weights = res['logwt']
 weights -= np.max(weights)
 
+print(res['samples'])
+
 # plt.plot(xdata, ydata, color='black', lw=1.5)
 for si, samp in enumerate(res['samples']):
     if weights[si] < -10:
         continue
-    plt.plot(xdata, ydata - foreground(xdata, samp),
+    plt.plot(xdata, ydata - foreground2(xdata, samp),
              color='blue', lw=0.5, alpha=0.5)
 plt.savefig("21cm.pdf")
 # plt.show()
