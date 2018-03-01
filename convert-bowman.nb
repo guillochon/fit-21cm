@@ -1,0 +1,146 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 11.2' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      4621,        138]
+NotebookOptionsPosition[      4181,        121]
+NotebookOutlinePosition[      4541,        137]
+CellTagsIndexPosition[      4498,        134]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"data", "=", 
+   RowBox[{"Import", "[", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"NotebookDirectory", "[", "]"}], "<>", "\"\<bowman.svg\>\""}], 
+     ",", "\"\<CSV\>\""}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"xinterp", "[", "x_", "]"}], ":=", 
+   RowBox[{
+    RowBox[{"data", "\[LeftDoubleBracket]", 
+     RowBox[{"1", ",", "2"}], "\[RightDoubleBracket]"}], "+", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"(", 
+       RowBox[{"x", "-", 
+        RowBox[{"data", "\[LeftDoubleBracket]", 
+         RowBox[{"1", ",", "1"}], "\[RightDoubleBracket]"}]}], ")"}], "/", 
+      RowBox[{"(", 
+       RowBox[{
+        RowBox[{"data", "\[LeftDoubleBracket]", 
+         RowBox[{"2", ",", "1"}], "\[RightDoubleBracket]"}], "-", 
+        RowBox[{"data", "\[LeftDoubleBracket]", 
+         RowBox[{"1", ",", "1"}], "\[RightDoubleBracket]"}]}], ")"}]}], 
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{"data", "\[LeftDoubleBracket]", 
+        RowBox[{"2", ",", "2"}], "\[RightDoubleBracket]"}], "-", 
+       RowBox[{"data", "\[LeftDoubleBracket]", 
+        RowBox[{"1", ",", "2"}], "\[RightDoubleBracket]"}]}], ")"}]}]}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"yinterp", "[", "x_", "]"}], ":=", 
+   RowBox[{
+    RowBox[{"data", "\[LeftDoubleBracket]", 
+     RowBox[{"3", ",", "2"}], "\[RightDoubleBracket]"}], "+", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"(", 
+       RowBox[{"x", "-", 
+        RowBox[{"data", "\[LeftDoubleBracket]", 
+         RowBox[{"3", ",", "1"}], "\[RightDoubleBracket]"}]}], ")"}], "/", 
+      RowBox[{"(", 
+       RowBox[{
+        RowBox[{"data", "\[LeftDoubleBracket]", 
+         RowBox[{"4", ",", "1"}], "\[RightDoubleBracket]"}], "-", 
+        RowBox[{"data", "\[LeftDoubleBracket]", 
+         RowBox[{"3", ",", "1"}], "\[RightDoubleBracket]"}]}], ")"}]}], 
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{"data", "\[LeftDoubleBracket]", 
+        RowBox[{"4", ",", "2"}], "\[RightDoubleBracket]"}], "-", 
+       RowBox[{"data", "\[LeftDoubleBracket]", 
+        RowBox[{"3", ",", "2"}], "\[RightDoubleBracket]"}]}], ")"}]}]}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"data", "\[LeftDoubleBracket]", 
+    RowBox[{
+     RowBox[{"5", ";;"}], ",", "1"}], "\[RightDoubleBracket]"}], "=", 
+   RowBox[{"xinterp", "/@", 
+    RowBox[{"data", "\[LeftDoubleBracket]", 
+     RowBox[{
+      RowBox[{"5", ";;"}], ",", "1"}], "\[RightDoubleBracket]"}]}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"data", "\[LeftDoubleBracket]", 
+    RowBox[{
+     RowBox[{"5", ";;"}], ",", "2"}], "\[RightDoubleBracket]"}], "=", 
+   RowBox[{"yinterp", "/@", 
+    RowBox[{"data", "\[LeftDoubleBracket]", 
+     RowBox[{
+      RowBox[{"5", ";;"}], ",", "2"}], "\[RightDoubleBracket]"}]}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"data", "=", 
+   RowBox[{"data", "\[LeftDoubleBracket]", 
+    RowBox[{"5", ";;"}], "\[RightDoubleBracket]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"Export", "[", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"NotebookDirectory", "[", "]"}], "<>", "\"\<signal.csv\>\""}], 
+   ",", "data", ",", "\"\<CSV\>\""}], "]"}]}], "Input",
+ CellChangeTimes->{{3.728850695240095*^9, 3.728850783744151*^9}, {
+  3.728850837187182*^9, 
+  3.72885100531808*^9}},ExpressionUUID->"7ab261ab-8578-466a-85c4-\
+240e7843af78"],
+
+Cell[BoxData["\<\"/Users/james/Downloads/fit-21cm/signal.csv\"\>"], "Output",
+ CellChangeTimes->{{3.728850996076516*^9, 
+  3.728851007055131*^9}},ExpressionUUID->"f099436a-29fa-4eb8-8324-\
+c46f54cb0d68"]
+}, Open  ]]
+},
+WindowSize->{808, 911},
+WindowMargins->{{306, Automatic}, {98, Automatic}},
+FrontEndVersion->"11.2 for Mac OS X x86 (32-bit, 64-bit Kernel) (September \
+10, 2017)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 3379, 91, 199, "Input",ExpressionUUID->"7ab261ab-8578-466a-85c4-240e7843af78"],
+Cell[3962, 115, 203, 3, 34, "Output",ExpressionUUID->"f099436a-29fa-4eb8-8324-c46f54cb0d68"]
+}, Open  ]]
+}
+]
+*)
+
