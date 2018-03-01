@@ -48,9 +48,6 @@ def ptform(u):
 datalen = 1000
 mu = 0.0
 sigma = 0.1
-min_nu = 51.0
-max_nu = 99.0
-nu_c = (max_nu - min_nu) / 2.0
 
 arange = 5000
 
@@ -65,18 +62,25 @@ free_vars = OrderedDict((
 
 ndim = len(list(free_vars.keys()))
 
-sigr = reader(open(os.path.join(__location__, 'signal.txt'), newline=''))
+sigr = reader(open(os.path.join(__location__, 'signal.csv'), newline=''))
 xdata = []
 ydata = []
 for row in sigr:
-    xdata.append(row[0])
-    ydata.append(row[1])
+    xdata.append(float(row[0]))
+    ydata.append(float(row[1]))
+xdata = np.array(xdata)
+ydata = np.array(ydata)
+min_nu, max_nu = min(xdata), max(xdata)
 
+# min_nu = 51.0
+# max_nu = 99.0
 # xdata = np.linspace(min_nu, max_nu, datalen)
 # ydata = np.random.normal(mu, sigma, datalen)
 
+nu_c = (max_nu - min_nu) / 2.0
+
 dsampler = NestedSampler(
-    log_like, ptform, ndim, dlogz=0.01)  # , print_progress=False)
+    log_like, ptform, ndim, dlogz=0.01, bound='single')  # , print_progress=False)
 dsampler.run_nested()
 
 res = dsampler.results
