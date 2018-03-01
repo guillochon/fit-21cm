@@ -7,8 +7,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 from corner import corner
 
-# from dynesty import DynamicNestedSampler
-from dynesty import NestedSampler
+from dynesty import DynamicNestedSampler
+# from dynesty import NestedSampler
 
 __location__ = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname(__file__)))
@@ -118,9 +118,9 @@ ndim = len(list(free_vars.keys()))
 
 nu_c = (max_nu + min_nu) / 2.0
 
-dsampler = NestedSampler(
-    log_like, ptform, ndim, sample='rwalk', bound='balls')
-dsampler.run_nested(dlogz=0.001)
+dsampler = DynamicNestedSampler(
+    log_like, ptform, ndim, sample='rwalk')
+dsampler.run_nested(dlogz_init=0.001, nlive_init=1000)
 
 res = dsampler.results
 
