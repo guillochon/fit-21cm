@@ -5,6 +5,7 @@ from csv import reader
 
 import numpy as np
 from matplotlib import pyplot as plt
+from corner import corner
 
 # from dynesty import DynamicNestedSampler
 from dynesty import NestedSampler
@@ -103,8 +104,8 @@ min_nu, max_nu = min(xdata), max(xdata)
 nu_c = (max_nu + min_nu) / 2.0
 
 dsampler = NestedSampler(
-    log_like, ptform, ndim, sample='rwalk', bound='single')  # , print_progress=False)
-dsampler.run_nested(maxiter=15000, dlogz=0.01)
+    log_like, ptform, ndim, sample='rwalk')  # , print_progress=False)
+dsampler.run_nested(dlogz=0.01)
 
 res = dsampler.results
 
@@ -114,10 +115,23 @@ weights -= np.max(weights)
 print(res['samples'])
 
 # plt.plot(xdata, ydata, color='black', lw=1.5)
+corner_weights = []
+corner_vars = []
 for si, samp in enumerate(res['samples']):
-    if weights[si] < -10:
+    if weights[si] < -7:
         continue
+    corner_weights.append(np.exp(weights[si]))
+    corner_vars.append(samp)
     plt.plot(xdata, ydata - foreground2(xdata, samp),
              color='blue', lw=0.5, alpha=0.5)
 plt.savefig("21cm.pdf")
+
+plt.clf()
+
+try:
+    corner(corner_vars, weights=corner_weights, labels=list(free_vars.keys()))
+except AssertionError as e:
+    print(repr(e))
+plt.savefig("corner.pdf")
+
 # plt.show()
