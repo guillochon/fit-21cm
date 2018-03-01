@@ -59,7 +59,7 @@ free_vars = OrderedDict((
     ('a2', (-2000, 0)),
     ('a3', (0, 1500)),
     ('a4', (-1000, 500)),
-    ('sigma', (1, 10000))
+    ('sigma', (0, 10000))
 ))
 
 ndim = len(list(free_vars.keys()))
@@ -87,8 +87,8 @@ min_nu, max_nu = min(xdata), max(xdata)
 nu_c = (max_nu + min_nu) / 2.0
 
 dsampler = NestedSampler(
-    log_like, ptform, ndim, dlogz=0.01)  # , print_progress=False)
-dsampler.run_nested(maxiter=10000)
+    log_like, ptform, ndim, sample='rwalk')  # , print_progress=False)
+dsampler.run_nested(maxiter=200000)
 
 res = dsampler.results
 
@@ -97,9 +97,9 @@ weights -= np.max(weights)
 
 # plt.plot(xdata, ydata, color='black', lw=1.5)
 for si, samp in enumerate(res['samples']):
-    if weights[si] < -100:
+    if weights[si] < -10:
         continue
-    plt.plot(xdata, foreground(xdata, samp) - ydata,
+    plt.plot(xdata, ydata - foreground(xdata, samp),
              color='blue', lw=0.5, alpha=0.5)
 plt.savefig("21cm.pdf")
 # plt.show()
