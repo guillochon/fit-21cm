@@ -54,9 +54,9 @@ def line_profile(nus, b):
 
 def log_like(x):
     """Log likelihood."""
-    fg = foreground2(xdata, x)
+    signal = foreground2(xdata, x) + line_profile(xdata, x)
 
-    diff = ydata - fg
+    diff = ydata - signal
     return -0.5 * (np.sum(np.inner(diff, diff) / x[-1] ** 2) + len(
         diff) * np.log(x[-1] ** 2))
 
@@ -119,7 +119,7 @@ ndim = len(list(free_vars.keys()))
 nu_c = (max_nu + min_nu) / 2.0
 
 dsampler = NestedSampler(
-    log_like, ptform, ndim, sample='rwalk', nlive=500)
+    log_like, ptform, ndim, sample='rwalk', bound='balls')
 dsampler.run_nested(dlogz=0.001)
 
 res = dsampler.results
