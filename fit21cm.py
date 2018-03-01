@@ -71,11 +71,11 @@ free_vars = OrderedDict((
     # ('a3', (0, 1500)),
     # ('a4', (-1000, 500)),
     ('b0', (0, 4000)),
-    ('b1', (-3, 3)),
-    ('b2', (-3, 3)),
-    ('b3', (-3, 3)),
-    ('b4', (-1000, 1000)),
-    ('sigma', (0, 100))
+    ('b1', (-2, 2)),
+    ('b2', (-2, 2)),
+    ('b3', (-2, 2)),
+    ('b4', (-1500, 1500)),
+    ('sigma', (0, 10))
 ))
 
 ndim = len(list(free_vars.keys()))
@@ -104,7 +104,7 @@ nu_c = (max_nu + min_nu) / 2.0
 
 dsampler = NestedSampler(
     log_like, ptform, ndim, sample='rwalk', bound='single')  # , print_progress=False)
-dsampler.run_nested(maxiter=14000, dlogz=0.01)
+dsampler.run_nested(maxiter=15000, dlogz=0.01)
 
 res = dsampler.results
 
