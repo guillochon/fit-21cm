@@ -41,13 +41,24 @@ def foreground2(nus, b):
     return fg
 
 
+def line_profile(nus, b):
+    """21cm line function from Bowman 2018."""
+    a = b[5]
+    nu0 = b[6]
+    w = b[7]
+    tau = b[8]
+    bigb = 4.0 * (nus - nu0) ** 2 / w ** 2 * np.log(
+        -1.0 / tau * np.log((1.0 + np.exp(-tau)) / 2.0))
+    return -a * (1.0 - np.exp(-tau * np.exp(bigb))) / (1.0 - np.exp(-tau))
+
+
 def log_like(x):
     """Log likelihood."""
     fg = foreground2(xdata, x)
 
     diff = ydata - fg
-    return -0.5 * (np.sum(np.inner(diff, diff) / x[5] ** 2) + len(
-        diff) * np.log(x[5] ** 2))
+    return -0.5 * (np.sum(np.inner(diff, diff) / x[-1] ** 2) + len(
+        diff) * np.log(x[-1] ** 2))
 
 
 def ptform(u):
@@ -59,27 +70,6 @@ def ptform(u):
 
 
 arange = 5000
-
-free_vars = OrderedDict((
-    # ('a0', (-arange, arange)),
-    # ('a1', (-arange, arange)),
-    # ('a2', (-arange, arange)),
-    # ('a3', (-arange, arange)),
-    # ('a4', (-arange, arange)),
-    # ('a0', (0, 5000)),
-    # ('a1', (0, 1200)),
-    # ('a2', (-2000, 0)),
-    # ('a3', (0, 1500)),
-    # ('a4', (-1000, 500)),
-    ('b0', (0, 4000)),
-    ('b1', (-2, 2)),
-    ('b2', (-2, 2)),
-    ('b3', (-2, 2)),
-    ('b4', (-1500, 1500)),
-    ('sigma', (0, 10))
-))
-
-ndim = len(list(free_vars.keys()))
 
 # Real data.
 sigr = reader(open(os.path.join(__location__, 'signal.csv'), newline=''))
@@ -101,11 +91,36 @@ min_nu, max_nu = min(xdata), max(xdata)
 # xdata = np.linspace(min_nu, max_nu, datalen)
 # ydata = np.random.normal(mu, sigma, datalen)
 
+free_vars = OrderedDict((
+    # ('a0', (-arange, arange)),
+    # ('a1', (-arange, arange)),
+    # ('a2', (-arange, arange)),
+    # ('a3', (-arange, arange)),
+    # ('a4', (-arange, arange)),
+    # ('a0', (0, 5000)),
+    # ('a1', (0, 1200)),
+    # ('a2', (-2000, 0)),
+    # ('a3', (0, 1500)),
+    # ('a4', (-1000, 500)),
+    ('b0', (0, 4000)),
+    ('b1', (-2, 2)),
+    ('b2', (-2, 2)),
+    ('b3', (-2, 2)),
+    ('b4', (-1500, 1500)),
+    ('A', (0, 10)),
+    ('nu0', (min_nu, max_nu)),
+    ('w', (0, 200)),
+    ('tau', (0, 100)),
+    ('sigma', (0, 10))
+))
+
+ndim = len(list(free_vars.keys()))
+
 nu_c = (max_nu + min_nu) / 2.0
 
 dsampler = NestedSampler(
-    log_like, ptform, ndim, sample='rwalk')  # , print_progress=False)
-dsampler.run_nested(dlogz=0.01)
+    log_like, ptform, ndim, sample='rwalk', nlive=500)
+dsampler.run_nested(dlogz=0.001)
 
 res = dsampler.results
 
@@ -121,7 +136,7 @@ for si, samp in enumerate(res['samples']):
         continue
     corner_weights.append(np.exp(weights[si]))
     corner_vars.append(samp)
-    diff = ydata - foreground2(xdata, samp)
+    diff = ydata - (foreground2(xdata, samp) + line_profile(xdata, samp))
     rms.append(np.sqrt(np.var(diff)))
     if weights[si] > -2:
         plt.plot(xdata, diff, color='blue', lw=0.5, alpha=0.5)
