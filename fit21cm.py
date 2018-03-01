@@ -15,9 +15,10 @@ __location__ = os.path.realpath(
 
 def foreground(nus, a):
     """Linear approximation to foreground."""
-    return a[0] * (nus / nu_c) ** -2.5 + a[1] * (nus / nu_c) ** -2.5 * np.log(
-        nus / nu_c) + a[2] * (nus / nu_c) ** -2.5 * np.log(
-            nus / nu_c) ** 2 + a[3] * (nus / nu_c) ** -4.5 + a[4] * (
+    return (a[0] * (nus / nu_c) ** -2.5) + ((
+        a[1] * (nus / nu_c) ** -2.5) * np.log(
+        nus / nu_c)) + ((a[2] * (nus / nu_c) ** -2.5) * np.log(
+            nus / nu_c) ** 2) + (a[3] * (nus / nu_c) ** -4.5) + a[4] * (
                 nus / nu_c) ** -2
 
 
@@ -45,23 +46,25 @@ def ptform(u):
     return x
 
 
-datalen = 1000
-mu = 0.0
-sigma = 0.1
-
 arange = 5000
 
 free_vars = OrderedDict((
-    ('a0', (-arange, arange)),
-    ('a1', (-arange, arange)),
-    ('a2', (-arange, arange)),
-    ('a3', (-arange, arange)),
-    ('a4', (-arange, arange)),
-    ('sigma', (0, 100))
+    # ('a0', (-arange, arange)),
+    # ('a1', (-arange, arange)),
+    # ('a2', (-arange, arange)),
+    # ('a3', (-arange, arange)),
+    # ('a4', (-arange, arange)),
+    ('a0', (0, 5000)),
+    ('a1', (100, 1500)),
+    ('a2', (-2000, 0)),
+    ('a3', (0, 1500)),
+    ('a4', (-1000, 500)),
+    ('sigma', (1, 10000))
 ))
 
 ndim = len(list(free_vars.keys()))
 
+# Real data.
 sigr = reader(open(os.path.join(__location__, 'signal.csv'), newline=''))
 xdata = []
 ydata = []
@@ -72,26 +75,31 @@ xdata = np.array(xdata)
 ydata = np.array(ydata)
 min_nu, max_nu = min(xdata), max(xdata)
 
+# Dummy data.
+# datalen = 1000
+# mu = 0.0
+# sigma = 0.1
 # min_nu = 51.0
 # max_nu = 99.0
 # xdata = np.linspace(min_nu, max_nu, datalen)
 # ydata = np.random.normal(mu, sigma, datalen)
 
-nu_c = (max_nu - min_nu) / 2.0
+nu_c = (max_nu + min_nu) / 2.0
 
 dsampler = NestedSampler(
-    log_like, ptform, ndim, dlogz=0.01, bound='single')  # , print_progress=False)
-dsampler.run_nested()
+    log_like, ptform, ndim, dlogz=0.01)  # , print_progress=False)
+dsampler.run_nested(maxiter=10000)
 
 res = dsampler.results
 
-weights = np.exp(res['logwt'])
-weights /= np.max(weights)
+weights = res['logwt']
+weights -= np.max(weights)
 
-plt.plot(xdata, ydata, color='black', lw=1.5)
+# plt.plot(xdata, ydata, color='black', lw=1.5)
 for si, samp in enumerate(res['samples']):
-    if weights[si] < 1.e-2:
+    if weights[si] < -100:
         continue
-    plt.plot(xdata, foreground(xdata, samp), color='blue', lw=0.5, alpha=0.5)
+    plt.plot(xdata, foreground(xdata, samp) - ydata,
+             color='blue', lw=0.5, alpha=0.5)
 plt.savefig("21cm.pdf")
 # plt.show()
