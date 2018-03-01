@@ -112,24 +112,29 @@ res = dsampler.results
 weights = res['logwt']
 weights -= np.max(weights)
 
-print(res['samples'])
-
 # plt.plot(xdata, ydata, color='black', lw=1.5)
 corner_weights = []
 corner_vars = []
+rms = []
 for si, samp in enumerate(res['samples']):
     if weights[si] < -7:
         continue
     corner_weights.append(np.exp(weights[si]))
     corner_vars.append(samp)
-    plt.plot(xdata, ydata - foreground2(xdata, samp),
-             color='blue', lw=0.5, alpha=0.5)
+    diff = ydata - foreground2(xdata, samp)
+    rms.append(np.sqrt(np.var(diff)))
+    if weights[si] > -2:
+        plt.plot(xdata, diff, color='blue', lw=0.5, alpha=0.5)
+
+print('RMS: {}'.format(np.median(rms)))
+
 plt.savefig("21cm.pdf")
 
 plt.clf()
 
 try:
-    corner(corner_vars, weights=corner_weights, labels=list(free_vars.keys()))
+    corner(corner_vars, weights=corner_weights, labels=list(free_vars.keys()),
+           range=[0.99 for x in range(ndim)])
 except AssertionError as e:
     print(repr(e))
 plt.savefig("corner.pdf")
